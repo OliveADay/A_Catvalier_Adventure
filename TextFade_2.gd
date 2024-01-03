@@ -1,11 +1,10 @@
 extends AnimationPlayer
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
+func _on_timer_timeout_end():
+	play("fade_out") # Replace with function body.
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+func _on_timer_timeout_start():
+	play("Fade_in")
+	$Timer.start(3)
+	$Timer2.start(2) # Replace with function body.
