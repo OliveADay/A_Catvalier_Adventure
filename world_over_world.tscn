@@ -1,10 +1,15 @@
-[gd_scene load_steps=11 format=3 uid="uid://oqw1eggmnmtu"]
+[gd_scene load_steps=21 format=3 uid="uid://oqw1eggmnmtu"]
 
 [ext_resource type="PackedScene" uid="uid://ce0f1akbynvw0" path="res://Player.tscn" id="1_l70d6"]
+[ext_resource type="Script" path="res://Black_start.gd" id="1_oy6ih"]
 [ext_resource type="Script" path="res://Light_aftertime.gd" id="2_ewarc"]
+[ext_resource type="AudioStream" uid="uid://gvfqnmb5cuo" path="res://flourecent_light.mp3" id="3_a6m1i"]
+[ext_resource type="Script" path="res://Tile_light.gd" id="3_epufh"]
 [ext_resource type="PackedScene" uid="uid://c6f0mpbg2mruc" path="res://Text.tscn" id="4_2ngjq"]
 [ext_resource type="FontFile" uid="uid://bragsuni6uc0o" path="res://PIXELIFYSANS-VARIABLEFONT_WGHT.TTF" id="4_m88v2"]
 [ext_resource type="Script" path="res://TextFade_2.gd" id="5_3yy2j"]
+[ext_resource type="Script" path="res://Tut_fade.gd" id="6_vxirf"]
+[ext_resource type="Texture2D" uid="uid://bi4q1oacpu852" path="res://tileset-Sheet.png" id="8_ihros"]
 
 [sub_resource type="Gradient" id="Gradient_50a1u"]
 interpolation_mode = 2
@@ -54,12 +59,59 @@ _data = {
 "fade_out": SubResource("Animation_h4sc2")
 }
 
+[sub_resource type="Animation" id="Animation_l8172"]
+resource_name = "fade_in"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_1xktq"]
+resource_name = "fade_out"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fs1ca"]
+_data = {
+"fade_in": SubResource("Animation_l8172"),
+"fade_out": SubResource("Animation_1xktq")
+}
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jnle2"]
+texture = ExtResource("8_ihros")
+0:0/0 = 0
+1:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_v33io"]
+sources/0 = SubResource("TileSetAtlasSource_jnle2")
+
 [node name="World_overWorld" type="Node2D"]
 
 [node name="ColorRect" type="ColorRect" parent="."]
 light_mask = 512
 offset_right = 256.0
 offset_bottom = 144.0
+script = ExtResource("1_oy6ih")
 
 [node name="Player" parent="." instance=ExtResource("1_l70d6")]
 z_index = 1
@@ -68,7 +120,18 @@ position = Vector2(126, 69)
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
 color = Color(0, 0, 0, 1)
 
-[node name="PointLight2D2" type="PointLight2D" parent="."]
+[node name="PointLight2D_main" type="PointLight2D" parent="."]
+top_level = true
+light_mask = 2
+visibility_layer = 2
+position = Vector2(142, 12)
+scale = Vector2(16, 16)
+enabled = false
+range_item_cull_mask = 5
+texture = SubResource("GradientTexture2D_ldnll")
+script = ExtResource("3_epufh")
+
+[node name="PointLight2D_text" type="PointLight2D" parent="."]
 top_level = true
 light_mask = 2
 visibility_layer = 2
@@ -78,6 +141,7 @@ range_item_cull_mask = 2
 texture = SubResource("GradientTexture2D_ldnll")
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
+light_mask = 5
 position = Vector2(138, 75)
 scale = Vector2(4, 4)
 enabled = false
@@ -89,14 +153,21 @@ wait_time = 1.5
 one_shot = true
 autostart = true
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="PointLight2D"]
+position = Vector2(-34.5, -18.75)
+scale = Vector2(0.25, 0.25)
+stream = ExtResource("3_a6m1i")
+volume_db = 5.73
 
 [node name="Label" parent="." instance=ExtResource("4_2ngjq")]
+visibility_layer = 512
+z_index = 1
 
 [node name="Label2" type="Label" parent="."]
 modulate = Color(1, 1, 1, 0)
 light_mask = 2
-visibility_layer = 2
+visibility_layer = 512
+z_index = 1
 offset_right = 256.0
 offset_bottom = 23.0
 theme_override_fonts/font = ExtResource("4_m88v2")
@@ -110,16 +181,20 @@ libraries = {
 script = ExtResource("5_3yy2j")
 
 [node name="Timer" type="Timer" parent="Label2/AnimationPlayer"]
-wait_time = 2.0
+wait_time = 3.0
 one_shot = true
 
 [node name="Timer2" type="Timer" parent="Label2/AnimationPlayer"]
+wait_time = 2.0
+one_shot = true
 
 [node name="Tutorial" type="Node2D" parent="."]
 
 [node name="tutorial_left" type="Label" parent="Tutorial"]
+modulate = Color(1, 1, 1, 0)
 light_mask = 2
 visibility_layer = 2
+z_index = 1
 offset_left = 11.0
 offset_top = 62.0
 offset_right = 218.0
@@ -128,9 +203,21 @@ scale = Vector2(0.5, 0.5)
 theme_override_fonts/font = ExtResource("4_m88v2")
 text = "A or left arrow to move up"
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Tutorial/tutorial_left"]
+libraries = {
+"": SubResource("AnimationLibrary_fs1ca")
+}
+script = ExtResource("6_vxirf")
+
+[node name="Timer" type="Timer" parent="Tutorial/tutorial_left/AnimationPlayer"]
+wait_time = 2.0
+one_shot = true
+
 [node name="tutorial_right" type="Label" parent="Tutorial"]
+modulate = Color(1, 1, 1, 0)
 light_mask = 2
 visibility_layer = 2
+z_index = 1
 offset_left = 147.0
 offset_top = 65.0
 offset_right = 364.0
@@ -139,9 +226,21 @@ scale = Vector2(0.5, 0.5)
 theme_override_fonts/font = ExtResource("4_m88v2")
 text = "D or right arrow to move up"
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Tutorial/tutorial_right"]
+libraries = {
+"": SubResource("AnimationLibrary_fs1ca")
+}
+script = ExtResource("6_vxirf")
+
+[node name="Timer" type="Timer" parent="Tutorial/tutorial_right/AnimationPlayer"]
+wait_time = 2.0
+one_shot = true
+
 [node name="Tutorial_up" type="Label" parent="Tutorial"]
+modulate = Color(1, 1, 1, 0)
 light_mask = 2
 visibility_layer = 2
+z_index = 1
 offset_left = 78.0
 offset_top = 21.0
 offset_right = 276.0
@@ -150,9 +249,21 @@ scale = Vector2(0.5, 0.5)
 theme_override_fonts/font = ExtResource("4_m88v2")
 text = "W or up arrow to move up"
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Tutorial/Tutorial_up"]
+libraries = {
+"": SubResource("AnimationLibrary_fs1ca")
+}
+script = ExtResource("6_vxirf")
+
+[node name="Timer" type="Timer" parent="Tutorial/Tutorial_up/AnimationPlayer"]
+wait_time = 2.0
+one_shot = true
+
 [node name="Tutorial_down" type="Label" parent="Tutorial"]
+modulate = Color(1, 1, 1, 0)
 light_mask = 2
 visibility_layer = 2
+z_index = 1
 offset_left = 79.0
 offset_top = 100.0
 offset_right = 277.0
@@ -161,8 +272,34 @@ scale = Vector2(0.5, 0.5)
 theme_override_fonts/font = ExtResource("4_m88v2")
 text = "D or down arrow to move up"
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Tutorial/Tutorial_down"]
+libraries = {
+"": SubResource("AnimationLibrary_fs1ca")
+}
+script = ExtResource("6_vxirf")
+
+[node name="Timer" type="Timer" parent="Tutorial/Tutorial_down/AnimationPlayer"]
+wait_time = 2.0
+one_shot = true
+
+[node name="TileMap" type="TileMap" parent="."]
+light_mask = 4
+tile_set = SubResource("TileSet_v33io")
+format = 2
+layer_0/tile_data = PackedInt32Array(0, 65536, 0, 65536, 65536, 0, 196615, 0, 0, 262151, 0, 0, 327687, 0, 0, 327688, 0, 0, 262152, 0, 0, 196616, 0, 0, 131080, 0, 0, 131081, 65536, 0, 196617, 0, 0, 262153, 0, 0, 262150, 0, 0, 327686, 0, 0, 327685, 0, 0, 393221, 0, 0, 393220, 0, 0, 458756, 0, 0, 458755, 0, 0, 458754, 0, 0, 524290, 0, 0, 524289, 0, 0, 589825, 0, 0, 655360, 0, 0, 720896, 0, 0, 786431, 0, 0, 851966, 0, 0, 917502, 0, 0, 917501, 0, 0, 983037, 0, 0, 983036, 0, 0, 983038, 0, 0, 917503, 0, 0, 786432, 0, 0, 786433, 0, 0, 720897, 0, 0, 720898, 0, 0, 655362, 0, 0, 655363, 0, 0, 589827, 0, 0, 589828, 0, 0, 524292, 0, 0, 524293, 0, 0, 458758, 0, 0, 393223, 0, 0, 393224, 0, 0, 393222, 0, 0, 458757, 0, 0, 851968, 0, 0, 983039, 0, 0, 1048574, 0, 0, 1048573, 0, 0, 1048572, 0, 0, 1114108, 0, 0, 1114107, 0, 0, 1114109, 0, 0, 851967, 0, 0, 655361, 0, 0, 589826, 0, 0, 524291, 0, 0, 589824, 0, 0, 720895, 0, 0, 786430, 0, 0, 851965, 0, 0, 917500, 0, 0, 983035, 0, 0, 1048571, 0, 0, 1048570, 0, 0, 1179644, 0, 0, 327689, 65536, 0, 393225, 65536, 0, 458761, 65536, 0, 458760, 65536, 0, 458759, 65536, 0, 524295, 65536, 0, 524294, 65536, 0, 589830, 65536, 0, 589829, 65536, 0, 655365, 65536, 0, 655364, 65536, 0, 720900, 65536, 0, 720899, 65536, 0, 786435, 65536, 0, 786434, 65536, 0, 851970, 65536, 0, 851969, 65536, 0, 917505, 65536, 0, 917504, 65536, 0, 983040, 65536, 0, 1048575, 65536, 0, 1114111, 65536, 0, 1114110, 65536, 0, 1179646, 65536, 0, 1179645, 65536, 0, 1179647, 65536, 0, 1114112, 65536, 0, 1048576, 65536, 0, 1048577, 65536, 0, 983041, 65536, 0, 983042, 65536, 0, 917506, 65536, 0, 917507, 65536, 0, 851971, 65536, 0, 851972, 65536, 0, 786436, 65536, 0, 786437, 65536, 0, 720901, 65536, 0, 720902, 65536, 0, 655366, 65536, 0, 655367, 65536, 0, 589831, 65536, 0, 589832, 65536, 0, 524296, 65536, 0, 524297, 65536, 0, 589833, 65536, 0, 655369, 65536, 0, 655368, 65536, 0, 720904, 65536, 0, 720903, 65536, 0, 786439, 65536, 0, 786438, 65536, 0, 851974, 65536, 0, 851973, 65536, 0, 917509, 65536, 0, 917508, 65536, 0, 983044, 65536, 0, 983043, 65536, 0, 1048579, 65536, 0, 1048578, 65536, 0, 1114114, 65536, 0, 1114113, 65536, 0, 1114115, 65536, 0, 1114116, 65536, 0, 1048580, 65536, 0, 1048581, 65536, 0, 983045, 65536, 0, 983046, 65536, 0, 917510, 65536, 0, 917511, 65536, 0, 851975, 65536, 0, 851976, 65536, 0, 786440, 65536, 0, 786441, 65536, 0, 720905, 65536, 0, 851977, 65536, 0, 917513, 65536, 0, 917512, 65536, 0, 983048, 65536, 0, 983047, 65536, 0, 1048583, 65536, 0, 1048582, 65536, 0, 1114118, 65536, 0, 1114117, 65536, 0, 1114119, 65536, 0, 1114120, 65536, 0, 1048584, 65536, 0, 1048585, 65536, 0, 983049, 65536, 0, 1114121, 65536, 0, 131082, 65536, 0, 131083, 65536, 0, 131084, 65536, 0, 131085, 65536, 0, 131086, 65536, 0, 131087, 65536, 0, 131088, 65536, 0, 196623, 65536, 0, 262159, 65536, 0, 327695, 65536, 0, 393231, 65536, 0, 327696, 65536, 0, 262160, 65536, 0, 196624, 65536, 0, 393232, 65536, 0, 458768, 65536, 0, 524304, 65536, 0, 589840, 65536, 0, 655376, 65536, 0, 720912, 65536, 0, 786448, 65536, 0, 851984, 65536, 0, 917520, 65536, 0, 983056, 65536, 0, 1048592, 65536, 0, 1114128, 65536, 0, 1114127, 65536, 0, 1114126, 65536, 0, 1114125, 65536, 0, 1114124, 65536, 0, 1114123, 65536, 0, 1114122, 65536, 0, 1048586, 65536, 0, 983050, 65536, 0, 917514, 65536, 0, 851978, 65536, 0, 786442, 65536, 0, 720906, 65536, 0, 655370, 65536, 0, 589834, 65536, 0, 524298, 65536, 0, 458762, 65536, 0, 393226, 65536, 0, 327690, 65536, 0, 262154, 65536, 0, 196618, 65536, 0, 196619, 65536, 0, 196620, 65536, 0, 196621, 65536, 0, 196622, 65536, 0, 262155, 65536, 0, 262156, 65536, 0, 262157, 65536, 0, 655373, 65536, 0, 589837, 65536, 0, 524301, 65536, 0, 458765, 65536, 0, 393229, 65536, 0, 327693, 65536, 0, 327692, 65536, 0, 327691, 65536, 0, 393227, 65536, 0, 458763, 65536, 0, 524299, 65536, 0, 589835, 65536, 0, 655371, 65536, 0, 720907, 65536, 0, 786443, 65536, 0, 851979, 65536, 0, 917515, 65536, 0, 983051, 65536, 0, 1048587, 65536, 0, 1048588, 65536, 0, 983052, 65536, 0, 917516, 65536, 0, 851980, 65536, 0, 786444, 65536, 0, 720908, 65536, 0, 655372, 65536, 0, 589836, 65536, 0, 524300, 65536, 0, 458764, 65536, 0, 393228, 65536, 0, 720909, 65536, 0, 786445, 65536, 0, 851981, 65536, 0, 917517, 65536, 0, 983053, 65536, 0, 1048589, 65536, 0, 1048590, 65536, 0, 983054, 65536, 0, 917518, 65536, 0, 851982, 65536, 0, 786446, 65536, 0, 720910, 65536, 0, 655374, 65536, 0, 589838, 65536, 0, 524302, 65536, 0, 458766, 65536, 0, 393230, 65536, 0, 327694, 65536, 0, 262158, 65536, 0, 458767, 65536, 0, 524303, 65536, 0, 589839, 65536, 0, 655375, 65536, 0, 720911, 65536, 0, 786447, 65536, 0, 851983, 65536, 0, 917519, 65536, 0, 983055, 65536, 0, 1048591, 65536, 0, 65552, 65536, 0, 16, 65536, 0, 15, 65536, 0, 14, 65536, 0, 13, 65536, 0, 12, 65536, 0, 11, 65536, 0, 10, 65536, 0, 9, 65536, 0, 8, 65536, 0, 7, 65536, 0, 6, 65536, 0, 5, 65536, 0, 4, 65536, 0, 3, 65536, 0, 2, 65536, 0, 1, 65536, 0, 65537, 65536, 0, 65538, 65536, 0, 65541, 65536, 0, 65540, 65536, 0, 65539, 65536, 0, 65542, 65536, 0, 65543, 65536, 0, 65544, 65536, 0, 65545, 65536, 0, 65547, 65536, 0, 65548, 65536, 0, 65549, 65536, 0, 65550, 65536, 0, 65551, 65536, 0, 65546, 65536, 0, 131079, 65536, 0, 131078, 65536, 0, 131077, 65536, 0, 131076, 65536, 0, 131075, 65536, 0, 131074, 65536, 0, 131073, 65536, 0, 131072, 65536, 0, 196608, 65536, 0, 262144, 65536, 0, 327680, 65536, 0, 393216, 65536, 0, 458752, 65536, 0, 524288, 65536, 0, 196610, 65536, 0, 196609, 65536, 0, 262145, 65536, 0, 327681, 65536, 0, 393217, 65536, 0, 458753, 65536, 0, 393218, 65536, 0, 327682, 65536, 0, 262146, 65536, 0, 262147, 65536, 0, 196611, 65536, 0, 196612, 65536, 0, 262148, 65536, 0, 327684, 65536, 0, 327683, 65536, 0, 393219, 65536, 0, 262149, 65536, 0, 196613, 65536, 0, 196614, 65536, 0, 983034, 65536, 0, 917498, 65536, 0, 851962, 65536, 0, 786426, 65536, 0, 720890, 65536, 0, 655354, 65536, 0, 589818, 65536, 0, 524282, 65536, 0, 458746, 65536, 0, 393210, 65536, 0, 327674, 65536, 0, 262138, 65536, 0, 196602, 65536, 0, 131066, 65536, 0, 65530, 65536, 0, 65531, 65536, 0, 65532, 65536, 0, 65533, 65536, 0, 65534, 65536, 0, 65535, 65536, 0, 131071, 65536, 0, 131070, 65536, 0, 131069, 65536, 0, 131067, 65536, 0, 131068, 65536, 0, 196607, 65536, 0, 196606, 65536, 0, 196605, 65536, 0, 262141, 65536, 0, 262140, 65536, 0, 196604, 65536, 0, 196603, 65536, 0, 262139, 65536, 0, 262143, 65536, 0, 262142, 65536, 0, 327678, 65536, 0, 327679, 65536, 0, 327677, 65536, 0, 327676, 65536, 0, 327675, 65536, 0, 720893, 65536, 0, 655357, 65536, 0, 589821, 65536, 0, 524285, 65536, 0, 458749, 65536, 0, 393213, 65536, 0, 393212, 65536, 0, 393211, 65536, 0, 458747, 65536, 0, 524283, 65536, 0, 589819, 65536, 0, 655355, 65536, 0, 720891, 65536, 0, 786427, 65536, 0, 851963, 65536, 0, 917499, 65536, 0, 851964, 65536, 0, 786428, 65536, 0, 720892, 65536, 0, 655356, 65536, 0, 589820, 65536, 0, 524284, 65536, 0, 458748, 65536, 0, 786429, 65536, 0, 393214, 65536, 0, 458750, 65536, 0, 524286, 65536, 0, 589822, 65536, 0, 655358, 65536, 0, 720894, 65536, 0, 655359, 65536, 0, 589823, 65536, 0, 524287, 65536, 0, 458751, 65536, 0, 393215, 65536, 0)
+
 [connection signal="timeout" from="PointLight2D/Timer2" to="PointLight2D" method="_on_timer_2_timeout"]
 [connection signal="timeout" from="Label/AnimationPlayer/Timer" to="Label2/AnimationPlayer" method="_on_timer_timeout_start"]
 [connection signal="timeout" from="Label2/AnimationPlayer/Timer" to="Label2/AnimationPlayer" method="_on_timer_timeout_end"]
+[connection signal="timeout" from="Label2/AnimationPlayer/Timer2" to="Tutorial/tutorial_left/AnimationPlayer" method="_on_timer_2_timeout"]
+[connection signal="timeout" from="Label2/AnimationPlayer/Timer2" to="Tutorial/tutorial_right/AnimationPlayer" method="_on_timer_2_timeout"]
+[connection signal="timeout" from="Label2/AnimationPlayer/Timer2" to="Tutorial/Tutorial_up/AnimationPlayer" method="_on_timer_2_timeout"]
+[connection signal="timeout" from="Label2/AnimationPlayer/Timer2" to="Tutorial/Tutorial_down/AnimationPlayer" method="_on_timer_2_timeout"]
+[connection signal="timeout" from="Tutorial/tutorial_left/AnimationPlayer/Timer" to="ColorRect" method="_on_timer_timeout"]
+[connection signal="timeout" from="Tutorial/tutorial_left/AnimationPlayer/Timer" to="PointLight2D_main" method="_on_timer_timeout"]
+[connection signal="timeout" from="Tutorial/tutorial_left/AnimationPlayer/Timer" to="Tutorial/tutorial_left/AnimationPlayer" method="_on_timer_timeout_end"]
+[connection signal="timeout" from="Tutorial/tutorial_right/AnimationPlayer/Timer" to="Tutorial/tutorial_right/AnimationPlayer" method="_on_timer_timeout_end"]
+[connection signal="timeout" from="Tutorial/Tutorial_up/AnimationPlayer/Timer" to="Tutorial/Tutorial_up/AnimationPlayer" method="_on_timer_timeout_end"]
+[connection signal="timeout" from="Tutorial/Tutorial_down/AnimationPlayer/Timer" to="Tutorial/Tutorial_down/AnimationPlayer" method="_on_timer_timeout_end"]
 
 [editable path="Label"]
