@@ -1,8 +1,10 @@
 extends CharacterBody2D
 
 
-var SPEED = 200
+var SPEED = 100
 
+func _ready():
+	$AnimationPlayer.play("idle")
 
 func _physics_process(delta):
 	# Get the input direction and handle the movement/deceleration.

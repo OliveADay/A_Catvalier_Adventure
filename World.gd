@@ -2,15 +2,17 @@ extends Node2D
 
 var CamPos = Vector2(-128, -72)
 var camera = Camera2D
+var cam_label = Label
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	cam_label = $Camera2D/Label # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	pass
+	if(!$statue/Area2D.has_overlapping_bodies()):
+		cam_label.visible = true
 
 
 func _on_timer_timeout():
