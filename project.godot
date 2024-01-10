@@ -11,15 +11,15 @@ config_version=5
 [application]
 
 config/name="CatCult"
+run/main_scene="res://world_over_world.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [display]
 
-window/size/viewport_width=256
-window/size/viewport_height=144
-window/size/mode=2
-window/stretch/scale=8.0
+window/size/viewport_width=640
+window/size/viewport_height=360
+window/stretch/scale=2.5
 
 [input]
 
